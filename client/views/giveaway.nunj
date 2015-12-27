@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>LOL U WIN - {{ title }}</title>
+  <link rel="stylesheet" href="/components/blah/main.css">
+    
+
+</head>
+<body>
+  <h1>{{ title }}</h1>
+  <p>Enter for a chance to win this prize!*</p>
+  <div class="picture">
+    <img src="{{ picture }}" />
+  </div>
+  <h3>Countdown until drawing</h3>
+  
+  <div class="countdown">
+    <div id="clock"></div>
+    <span id="endDate"></span>
+  </div>
+  
+  <div class="entries">
+    <h3>entry form</h3>
+  </div>
+  
+  <div class="donations">
+    <h3>Donators</h3>
+    <p>Big thanks to the following donators who keep this site running.</p>
+    <div id="donators">
+    </div>
+    
+    <p>Want to support this site? Donators get their name or website displayed on this page. Donations do not change your chances of winning.</p>
+    <div id="donate">
+      <a onclick="shapeshift_click(this, event);" href="https://shapeshift.io/shifty.html?destination=13QBc57Q5FMAyPm7grSBDFi7kRcLGQ1CNp&amp;output=BTC&amp;apiKey=3cbd77ef2feb9613eeee4d7dc407ed186194b2c86bf0c91a3a3f6ede8b76e0b456d5c9f95741255d2ce919b27118f28f03717661a1e277cf53e8a5a1165a8c08"><img src="https://shapeshift.io/images/shifty/small_dark_ss.png" class="ss-button"></a>
+    </div>
+  </div>
+  
+  
+  <div class="disclaimer">
+    <p>*No purchase necessary. Must be at least 18 years of age to enter. One entry per person. Winning prize offered is on League of Legends NA server only. See <a href="./rules">official rules</a>. </p>
+  </div>
+  
+  
+  <script src="/components/jquery/dist/jquery.js"></script>
+  <script src="/components/jquery.countdown/dist/jquery.countdown.js"></script>
+  <script src="/components/moment/moment.js"></script>
+  <script type="text/javascript">
+    
+    // update countdown clock
+    $("#clock")
+      .countdown(moment({{ end }}, 'x').format('YYYY[/]MM/DD'), function (event) {
+        $(this).text(
+          event.strftime('%D days %H:%M:%S')
+        );
+      });
+      
+    // display end time
+    $("#endDate").html(moment({{ end }}).format());
+    
+      function shapeshift_click(a, e) {
+      e.preventDefault();
+      var link = a.href;
+      window.open(link, '1418115287605', 'width=700,height=500,toolbar=0,menubar=0,location=0,status=1,scrollbars=1,resizable=0,left=0,top=0');
+      return false;
+    }
+    
+  </script>
+</body>
+</html>
+
+
+
+
+

@@ -1,0 +1,29 @@
+{
+  "name": "loluwin",
+  "version": "1.0.0",
+  "description": "blah",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/insanity54/loluwin"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/insanity54/loluwin/issues"
+  },
+  "homepage": "https://github.com/insanity54/loluwin",
+  "dependencies": {
+    "cradle": "^0.6.9",
+    "express": "^4.13.3",
+    "moment": "^2.10.6",
+    "nconf": "^0.8.2",
+    "nunjucks": "^2.2.0",
+    "redis": "^2.4.2",
+    "tinyclap": "^1.0.1",
+    "underscore": "^1.8.3"
+  }
+}
