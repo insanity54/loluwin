@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>LOL U WIN - error {{ code }}</title>
+
+</head>
+
+<body>
+<h1>{{ code }} error!</h2
+<p>{{ message }}</p>
+
+<a href="/">home</a>
+</body>
+
+</html>

@@ -3,6 +3,7 @@ var express = require('express');
 var app = express();
 var nunjucks = require('nunjucks');
 var giveaway = require('./giveaway');
+var moment = require('moment');
 
 nunjucksEnv = new nunjucks.Environment(new nunjucks.FileSystemLoader(path.join(__dirname, '/client/views'), {
   autoescape: true
@@ -36,7 +37,7 @@ var serve = function serve() {
    * home page
    */
   app.get('/', function (req, res) {
-    return res.send('hello');
+    res.send('hello');
   });
 
 
@@ -60,16 +61,35 @@ var serve = function serve() {
       giveaway.load(req.loluwin.giveawayID, function (err, g) {
         if (err) throw err;
 
-        console.log('got giveaway', g);
-        var title = g.title || 'untitled giveaway';
-        var description = g.description || 'undescribed giveaway';
-        var picture = g.picture || 'https://ipfs.pics/ipfs/QmbbzFoLVEN3PyfTRLkW4dusFp5PeTYs3mULGmmsWbgY2v';
-
+//        console.log('got giveaway', g);
+//        var title = g.title || 'untitled giveaway';
+//        var description = g.description || 'undescribed giveaway';
+//        var picture = g.picture || 'https://ipfs.pics/ipfs/QmbbzFoLVEN3PyfTRLkW4dusFp5PeTYs3mULGmmsWbgY2v';
+//        var sponsorName = g.sponsorName || '';
+//        var sponsorAddress = g.sponsorAddress || '';
+//        var endDate = g.endDate;
+        
+        if (!g.title) return res.status(500).render('error.nunj', {code: 500, message: 'giveaway has no title'});
+        if (!g.description) return res.status(500).render('error.nunj', {code: 500, message: 'giveaway has no description'});
+        if (!g.picture) return res.status(500).render('error.nunj', {code: 500, message: 'giveaway has no picture'});
+        if (!g.endDate) return res.status(500).render('error.nunj', {code: 500, message: 'giveaway has no end date'});
+        if (!g.drawingDate) return res.status(500).render('error.nunj', {code: 500, message: 'giveaway has no drawing date'});
+        if (!g.sponsorName) return res.status(500).render('error.nunj', {code: 500, message: 'giveaway has no sponsor name'});
+        if (!g.sponsorEmail) return res.status(500).render('error.nunj', {code: 500, message: 'giveaway has no sponsor email'});
+        if (!g.sponsorAddress) return res.status(500).render('error.nunj', {code: 500, message: 'giveaway has no sponsor address'});
+        
+        var endDate = moment(g.endDate).format('YYYY-MM-DD');
+        var drawingDate = moment(g.drawingDate).format('YYYY-MM-DD');
 
         res.render('rules.nunj', {
-          giveawayTitle: title,
-          giveawayDescription: description,
-          giveawayPicture: picture
+          title: g.title,
+          description: g.description,
+          picture: g.picture,
+          endDate: endDate,
+          drawingDate: drawingDate,
+          sponsorName: g.sponsorName,
+          sponsorAddress: g.sponsorAddress,
+          sponsorEmail: g.sponsorEmail
         });
       });
     });
@@ -90,13 +110,30 @@ var serve = function serve() {
         var title = g.title;
         var description = g.description;
         var picture = g.picture;
-        var end = g.end;
+        var endDate = g.endDate;
+        var drawingDate = g.drawingDate;
+        var sponsorName = g.sponsorName;
+        var sponsorAddress = g.sponsorAddress;
+        var sponsorEmail = g.sponsorEmail;
          
+        if (!title) return res.status(500).render('error.nunj', {code: 500, message: 'giveaway has no title'});
+        if (!description) return res.status(500).render('error.nunj', {code: 500, message: 'giveaway has no description'});
+        if (!picture) return res.status(500).render('error.nunj', {code: 500, message: 'giveaway has no picture'});
+        if (!endDate) return res.status(500).render('error.nunj', {code: 500, message: 'giveaway has no end date'});
+        if (!drawingDate) return res.status(500).render('error.nunj', {code: 500, message: 'giveaway has no drawing date'});
+        if (!sponsorName) return res.status(500).render('error.nunj', {code: 500, message: 'giveaway has no sponsor name'});
+        if (!sponsorEmail) return res.status(500).render('error.nunj', {code: 500, message: 'giveaway has no sponsor email'});
+        if (!sponsorAddress) return res.status(500).render('error.nunj', {code: 500, message: 'giveaway has no sponsor address'});
+        
         res.render('giveaway.nunj', {
           title: title,
           description: description,
           picture: picture,
-          end: end
+          endDate: endDate,
+          drawingDate: drawingDate,
+          sponsorName: sponsorName,
+          sponsorAddress: sponsorAddress,
+          sponsorEmail: sponsorEmail
         })
       });
     });

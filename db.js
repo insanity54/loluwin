@@ -15,6 +15,7 @@ var db = new(cradle.Connection)().database('hellocouch');
 // create db if not exists
 db.exists(function(err, exists) {
   if (err) {
+    console.error('is database running??');
     throw err;
   } else if (exists) {
     //console.log('db exists');

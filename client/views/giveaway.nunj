@@ -9,6 +9,7 @@
 </head>
 <body>
   <h1>{{ title }}</h1>
+  <p>{{ description }}</p>
   <p>Enter for a chance to win this prize!*</p>
   <div class="picture">
     <img src="{{ picture }}" />
@@ -24,21 +25,25 @@
     <h3>entry form</h3>
   </div>
   
+  <hr>
+  
   <div class="donations">
     <h3>Donators</h3>
     <p>Big thanks to the following donators who keep this site running.</p>
     <div id="donators">
     </div>
     
-    <p>Want to support this site? Donators get their name or website displayed on this page. Donations do not change your chances of winning.</p>
+    <p>Want to support this site? Donators get their name or website displayed on this website. Donations do not change your chances of winning.</p>
     <div id="donate">
       <a onclick="shapeshift_click(this, event);" href="https://shapeshift.io/shifty.html?destination=13QBc57Q5FMAyPm7grSBDFi7kRcLGQ1CNp&amp;output=BTC&amp;apiKey=3cbd77ef2feb9613eeee4d7dc407ed186194b2c86bf0c91a3a3f6ede8b76e0b456d5c9f95741255d2ce919b27118f28f03717661a1e277cf53e8a5a1165a8c08"><img src="https://shapeshift.io/images/shifty/small_dark_ss.png" class="ss-button"></a>
     </div>
   </div>
   
   
-  <div class="disclaimer">
-    <p>*No purchase necessary. Must be at least 18 years of age to enter. One entry per person. Winning prize offered is on League of Legends NA server only. See <a href="./rules">official rules</a>. </p>
+  <div class="footer">
+    <div class="disclaimer">
+      <p>*No purchase necessary. Must be at least 18 years of age to enter. Need not be present at drawing to win. One entry per person. Winning prize offered is on League of Legends NA server only. Void where prohibited. See <a id="rulesLink" href="#">official rules</a>. </p>
+    </div>
   </div>
   
   
@@ -47,16 +52,19 @@
   <script src="/components/moment/moment.js"></script>
   <script type="text/javascript">
     
+    // fix rules link
+    $("#rulesLink").attr("href", window.location.href + '/rules');
+    
     // update countdown clock
     $("#clock")
-      .countdown(moment({{ end }}, 'x').format('YYYY[/]MM/DD'), function (event) {
+      .countdown(moment({{ endDate }}, 'x').format('YYYY[/]MM/DD'), function (event) {
         $(this).text(
           event.strftime('%D days %H:%M:%S')
         );
       });
       
     // display end time
-    $("#endDate").html(moment({{ end }}).format());
+    $("#endDate").html(moment({{ endDate }}).format());
     
       function shapeshift_click(a, e) {
       e.preventDefault();
