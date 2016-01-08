@@ -1,21 +1,21 @@
 var path = require('path');
 var nconf = require('nconf');
 var cradle = require('cradle');
-var underscore = require('underscore');
-
+var _ = require('underscore');
+var moment = require('moment');
 
 nconf.file(path.join(__dirname, 'config.json'));
+var couchHost = nconf.get('COUCH_HOST') || '127.0.0.1';
+var couchPort = nconf.get('COUCH_PORT') || 5984;
 
-var couchHost = nconf.get('COUCH_HOST');
-var couchPort = nconf.get('COUCH_PORT');
 
-var db = new(cradle.Connection)().database('hellocouch');
+var db = new(cradle.Connection)(couchHost, couchPort).database('hellocouch');
 
 
 // create db if not exists
 db.exists(function(err, exists) {
   if (err) {
-    console.error('is database running??');
+    console.error(' >>> is database running?? <<<');
     throw err;
   } else if (exists) {
     //console.log('db exists');
@@ -25,6 +25,24 @@ db.exists(function(err, exists) {
   }
 });
 
+
+// create couchDB views our app will use
+db.save('_design/giveaway', {
+    all: {
+        map: function (doc) {
+            if (doc.type == 'giveaway') emit(doc.title, doc);
+        }
+    },
+    endDates: {
+        map: function (doc) {
+          if (doc.type == 'giveaway') {
+            if (doc.endDate) {
+              emit(null, doc.endDate);
+            }
+          }
+        }
+    }
+});
 
 
 //var client = couchdb.createClient(couchPort, couchHost);
@@ -74,11 +92,38 @@ var saveWinner = function saveWinner() {
   });
 }
 
-
-
+/**
+ * get the soonest ending (next) giveaway
+ */
+var getNextGiveaway = function getNextGiveaway(cb) {
+  db.view('giveaway/endDates', function(err, res) {
+    if (!res) return cb(new Error('no response from db.getNextGiveaway'));
+    console.log(res[res.length-1]);
+    console.log(moment(res[res.length-1].value).isAfter(moment()));
+    var times = _.chain(res)
+      .filter(function(item) {
+        // return only giveaways with valid timestamp
+        return moment(item.value).isValid();
+      })
+      .filter(function(item) {
+        // return only giveaways that haven't ended
+        return moment(item.value).isAfter(moment());
+      })
+      //.tap(console.log)
+      .sortBy(res, function(item) {
+        //console.log(item);
+        return moment(item.value).valueOf();
+      })
+      .first()
+      .value();
+    console.log(times);
+    return cb(null, times);
+  });
+}
 
 module.exports = {
   save: save,
   load: load,
-  saveWinner: saveWinner
+  saveWinner: saveWinner,
+  getNextGiveaway: getNextGiveaway
 }

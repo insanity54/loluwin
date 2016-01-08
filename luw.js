@@ -1,5 +1,9 @@
 /**
  * command line interface for the admin
+ *
+ *
+ * tips for major updates to this file:
+ *   - increment version sent to giveaway.create
  */
 
 
@@ -22,17 +26,18 @@ program
   .command('create')
   .description('Creates a sweepstakes')
   .option('-t, --title <title>', 'Title of sweepstakes')
-  .option('-d, --description <description>', 'Description of sweepstakes')
+  .option('-d, --description <description>', 'Description and count (n) of the prize being given away in sweepstakes')
   .option('-p, --picture <picture>', 'Picture for sweepstakes')
   .option('-s, --sponsor <sponsor>', 'Name of the sweepstakes sponsor')
   .option('-a, --address <address>', 'Address of the sweepstakes')
   .option('-m, --email <email>', 'Sponsor E-mail address')
-  .option('-e, --end <end>', 'Date at which entries are cut off')
-  .option('-r, --drawing <drawing>', 'Date at which the drawing takes place')
+  .option('-e, --end <end>', 'Date at which entries are cut off. Format: YYYY-MM-DD')
+  .option('-r, --drawing <drawing>', 'Date at which the drawing takes place. Format: YYYY-MM-DD')
+  .option('-l, --delivery <delivery>', 'Description of the delivery method. Continue the sentence: "Prize will be delivered..."')
   .action(function(env){
-    console.log(env);
-    console.log('');
-    console.log(chalk.red(env.title));
+    //console.log(env);
+    //console.log('');
+    console.log(chalk.yellow(env.title));
   
     // make sure required args were received
     !env.title ? console.log(chalk.red('✖') + ' title') : console.log(chalk.green('✔') + ' title')
@@ -43,6 +48,7 @@ program
     !env.email ? console.log(chalk.red('✖') + ' email') : console.log(chalk.green('✔') + ' email')
     !env.end ? console.log(chalk.red('✖') + ' endDate') : console.log(chalk.green('✔') + ' endDate')
     !env.drawing ? console.log(chalk.red('✖') + ' drawingDate') : console.log(chalk.green('✔') + ' drawingDate')
+    !env.delivery ? console.log(chalk.red('✖') + ' deliveryMethod') : console.log(chalk.green('✔') + ' deliveryMethod')
     //env = env || 'all';
     //console.log('setup for %s env(s) with %s mode', env, mode);
     console.log(chalk.bold.green('CREATE') + env.description);
@@ -54,7 +60,9 @@ program
         env.address &&
         env.email &&
         env.end &&
-        env.drawing) {
+        env.drawing &&
+        env.delivery
+       ) {
        giveaway.create({
          title: env.title,
          description: env.description,
@@ -63,7 +71,9 @@ program
          address: env.address,
          email: env.email,
          end: env.end,
-         drawing: env.drawing
+         drawing: env.drawing,
+         delivery: env.delivery,
+         version: 4
        }, function(err, giveawayID) {
          if (err) throw err;
         console.log('[' + chalk.bold.green('OK') + '] giveaway successfully created with id ' + giveawayID);

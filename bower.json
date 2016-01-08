@@ -17,8 +17,8 @@
     "tests"
   ],
   "dependencies": {
-    "moment-countdown": "~0.0.3",
     "moment": "~2.10.6",
-    "jquery.countdown": "~2.1.0"
+    "jquery.countdown": "~2.1.0",
+    "bootstrap": "~3.3.6"
   }
 }

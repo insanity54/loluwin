@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/insanity54/loluwin",
   "dependencies": {
+    "body-parser": "^1.14.2",
     "chalk": "^1.1.1",
     "commander": "^2.9.0",
     "cradle": "^0.6.9",

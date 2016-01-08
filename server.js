@@ -4,6 +4,11 @@ var app = express();
 var nunjucks = require('nunjucks');
 var giveaway = require('./giveaway');
 var moment = require('moment');
+var bodyParser = require('body-parser')
+app.use( bodyParser.json() );       // to support JSON-encoded bodies
+//app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
+//  extended: true
+//})); 
 
 nunjucksEnv = new nunjucks.Environment(new nunjucks.FileSystemLoader(path.join(__dirname, '/client/views'), {
   autoescape: true
@@ -37,15 +42,20 @@ var serve = function serve() {
    * home page
    */
   app.get('/', function (req, res) {
-    res.send('hello');
+    //res.send('hello');
+    res.redirect('/giveaway/next');
   });
 
 
   /**
    * get the end date of the next giveaway
    */
-  app.get('/giveaway/next/date', function (req, res) {
-
+  app.get('/giveaway/next', function (req, res) {
+    giveaway.getNext(function(err, g) {
+      if (err) res.status(500).render('error.nunj', {code: 500, message: 'could not get next giveaway'});
+      console.log(g);
+      res.redirect('/giveaway/' + g.id);
+    });
   });
   
   
@@ -77,6 +87,7 @@ var serve = function serve() {
         if (!g.sponsorName) return res.status(500).render('error.nunj', {code: 500, message: 'giveaway has no sponsor name'});
         if (!g.sponsorEmail) return res.status(500).render('error.nunj', {code: 500, message: 'giveaway has no sponsor email'});
         if (!g.sponsorAddress) return res.status(500).render('error.nunj', {code: 500, message: 'giveaway has no sponsor address'});
+        if (!g.deliveryMethod) return res.status(500).render('error.nunj', {code: 500, message: 'giveaway has no delivery method'});
         
         var endDate = moment(g.endDate).format('YYYY-MM-DD');
         var drawingDate = moment(g.drawingDate).format('YYYY-MM-DD');
@@ -89,7 +100,8 @@ var serve = function serve() {
           drawingDate: drawingDate,
           sponsorName: g.sponsorName,
           sponsorAddress: g.sponsorAddress,
-          sponsorEmail: g.sponsorEmail
+          sponsorEmail: g.sponsorEmail,
+          deliveryMethod: g.deliveryMethod
         });
       });
     });
@@ -129,15 +141,35 @@ var serve = function serve() {
           title: title,
           description: description,
           picture: picture,
-          endDate: endDate,
+          endDate: moment(endDate).format(),
+          endDateUnix: endDate,
           drawingDate: drawingDate,
           sponsorName: sponsorName,
           sponsorAddress: sponsorAddress,
-          sponsorEmail: sponsorEmail
-        })
+          sponsorEmail: sponsorEmail,
+          rulesLink: g.id+'/rules'
+        });
       });
     });
 
+  
+  /**
+   * accept giveaway submissions
+   */
+  app.post('/giveaway/entry', function(req, res) {
+    console.log(req.body);
+
+    var entry = {};
+    entry.ign = req.body.ingamename;
+    entry.email = req.body.email;
+    
+    
+    giveaway.addEntry(entry, function(err) {
+      if (err) res.status(403);
+      res.status(202); 
+    }
+  });
+  
 }
 
 module.exports = {

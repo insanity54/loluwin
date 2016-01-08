@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="keywords" content="">
+    <meta name="author" content="">
+    <meta name="Copyright" content="">
+    <link rel="icon" href="images/favicon.ico">
+    <title></title>
+    <link href="/components/bootstrap/dist/css/bootstrap.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="/components/loluwin/css/jquery.countdown.css">
+    <link href="/components/loluwin/css/custom.css" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <div class="container header">
+            <img src="/components/loluwin/img/logo.png" alt="Logo">
+        </div>
+    </header>
+    <div class="container content-area">
+        <div class="col-sm-6">
+            <h1>LOL, U WIN!</h1>
+            <h4>Enter for a chance to win {{ description }}!*</h4>
+            <img src="{{ picture }}" alt="{{ description }} banner" class="img-responsive" width="345" height="393">
+            <h3>Countdown until drawing</h3>
+            <div class="text-center">
+                <div id="clock"></div>
+                <h4 class="endDate">{{ endDate }}</h4>
+            </div>
+        </div>
+        <div class="col-sm-offset-1 col-sm-5 contactform clearfix">
+            <form id="chance" method="post">
+                <h4>Enter for a chance to win!*</h4>
+                <div class="alert alert-danger error-message"></div>
+                <div class="alert alert-success success-message"></div>
+                <div class="form-group">
+                    <label for="ingamename">in-game-name (NA ONLY)</label>
+                    <input type="text" class="form-control" name="ingamename" id="ingamename" />
+                </div>
+                <div class="form-group">
+                    <label for="email">Email address</label>
+                    <input type="email" class="form-control" name="email" id="email" />
+                </div>
+                <button type="submit" class="btn btn-default pull-right btnx">ENTER</button>
+            </form>
+        </div>
+        <div class="col-sm-offset-1 col-sm-5 donate clearfix">
+            <h4>Donors</h4>
+            <p>Big thanks to the following donors who keep this site running.</p>
+            <p>Want to support this site? Donators get their name or website displayed on this website for 90 days. Donations do not change your chances of winning.</p>
+            {{ donorList }}
+            <ul>
+                <li><a href="">@notch</a></li>
+                <li><a href="">cool-man-yo</a></li>
+                <li><a href="">Franchesca Siblestein</a></li>
+                <li><a href="">Mr. Rogers</a></li>
+                <li><a href="">Frankie Doodle</a></li>
+                <li><a href="">Tesla Motors</a></li>
+                <li><a href="">Tinus Lorvalds</a></li>
+            </ul>
+            <button type="submit" class="btn btn-default pull-right btnx">DONATE</button>
+        </div>
+    </div>
+    <footer>
+        <div class="container footer">
+            <p>*No purchase necessary. Must be at least 18 years of age to enter. Need not be present at drawing to win. One entry per person. Winning prize offered is on League of Legends NA server only. Void where prohibited. See <a href="{{ rulesLink }}" id="rulesLink" class="link">official rules</a></p>
+        </div>
+    </footer>
+    <script type="text/javascript" src="/components/jquery/dist/jquery.min.js"></script>
+    <script src="/components/jquery.countdown/dist/jquery.countdown.js"></script>
+    <script src="/components/moment/moment.js"></script>
+    <script type="text/javascript">
+        var liftoffTime = new Date();
+        var x = liftoffTime.setDate(liftoffTime.getDate() + 1);
+        $('#compactLayout').countdown({until: liftoffTime, compact: true,
+            layout: '<b>{dn} Days {hnn}{sep}{mnn}{sep}{snn}</b> {desc}',
+            description: ''});
+
+        $('form#chance').submit(function() {
+            var postdata = $('form#chance').serialize();
+            $.ajax({
+                type: 'POST',
+                url: 'entry',
+                data: postdata,
+                dataType: 'json',
+                success: function(json) {
+                    if(json.valid == 0) {
+                        $('.success-message').hide();
+                        $('.error-message').hide();
+                        $('.error-message').html(json.message);
+                        $('.error-message').fadeIn();
+                    }
+                    else {
+                        $('.error-message').hide();
+                        $('.success-message').hide();
+                        $('.newsletter form').hide();
+                        $('.success-message').html(json.message);
+                        $('.success-message').fadeIn();
+                    }
+                }
+            });
+            return false;
+        });
+    </script>
+    <script type="text/javascript">
+    
+    // fix rules link
+    //$("#rulesLink").attr("href", window.location.href + '/rules');
+    
+    // update countdown clock
+    $("#clock")
+      .countdown(moment({{ endDateUnix }}, 'x').format('YYYY[/]MM/DD'), function (event) {
+        $(this).text(
+          event.strftime('%D days %H:%M:%S')
+        );
+      });
+      
+    // display end time
+    //$("#endDate").html(moment({{ endDate }}).format());
+    
+      function shapeshift_click(a, e) {
+      e.preventDefault();
+      var link = a.href;
+      window.open(link, '1418115287605', 'width=700,height=500,toolbar=0,menubar=0,location=0,status=1,scrollbars=1,resizable=0,left=0,top=0');
+      return false;
+    }
+    
+  </script>
+</body>
+</html>

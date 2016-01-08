@@ -18,6 +18,8 @@ var create = function create(options, cb) {
   var sponsorAddress = opts.address || '123 Monkey Road';
   var sponsorName = opts.sponsor || 'Tinus Lorvalds';
   var sponsorEmail = opts.email || 'fart@example.com';
+  var deliveryMethod = opts.delivery || 'digital transfer via e-mail';
+  
   
   if (!moment(endDate).isValid()) throw new Error('end date ' + endDate + ' is not valid. it must be parseable by momentjs, i.e. in the format YYYY-MM-DD');
   if (!moment(drawingDate).isValid()) throw new Error('drawing date ' + drawingDate + ' is not valid. it must be parseable by momentjs, i.e. in the format YYYY-MM-DD');
@@ -26,7 +28,8 @@ var create = function create(options, cb) {
   var give = { 
     type: 'giveaway', 
     title: title, 
-    description: description, 
+    description: description,
+    deliverytMethod: deliveryMethod,
     picture: picture,
     endDate: endDate,
     drawingDate: drawingDate,
@@ -59,8 +62,31 @@ var get = function get(id, cb) {
 }
 
 
+/**
+ * retrieve the soonest ending giveaway
+ */
+var getNext = function getNext(cb) {
+  db.getNextGiveaway(function(err, giveaway) {
+    if (err) {
+      console.error('error with giveaway.getNext() ' + err);
+      return cb(new Error('could not get next giveaway'));
+    }
+    return cb(null, giveaway);
+  });
+}
+
+
+/**
+ * user entry to the giveaway
+ */
+var 
+
+
+
 module.exports = {
   create: create,
   get: get,
-  load: get
+  load: get,
+  getNext: getNext,
+  addEntry: addEntry
 }
