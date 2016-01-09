@@ -1,8 +1,13 @@
 var moment = require('moment');
 var db = require('./db');
 var _ = require('underscore');
+var Validator = require('validatorjs');
+var util = require('util'); 
 
-
+var submissionRules = {
+	ign: 'required',
+	email: 'required|email',
+};
 
 /**
  * create new giveaway
@@ -84,21 +89,18 @@ var addEntry = function addEntry(entry, giveawayID, cb) {
   if (typeof(entry) === 'undefined') return cb(new Error('addEntry() requires entry object as first param'));
   if (typeof(cb) === 'undefined') return cb(new Error('addEntry() requires the third argument to be a callback'));
   
+  var validation = new Validator(entry, submissionRules);
+ 
+  if (validation.fails()) {
+    return cb(new Error(util.inspect(validation.errors.all())));
+  }
   
-  db.loadGiveaway(giveawayID, function(err, giveaway) {
-    if (err) return cb(new Error('db.loadGiveaway returned an error while fetching giveaway ID ' + giveawayID + ' err: ' + err));
-    if (typeof(giveaway) === 'undefined') return cb(new Error('db.loadGiveaway did not return with a giveaway'));
-    
-    // add the giveaway entry to the giveaway document
-    console.log('giveaway inside addEntry')
-    console.log(giveaway);
-    
-    db.merge(giveawayID, {
-      entries: giveaway.entries.push(entry) 
+  else {
+    db.addEntry(entry, giveawayID, function(err) {
+      if (err) return cb(err);
+      return cb(null);
     });
-    
-    return cb(null);
-  });
+  }
 }
 
 

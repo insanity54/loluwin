@@ -86,14 +86,17 @@
                 url: 'sendmail.php',
                 data: postdata,
                 dataType: 'json',
-                success: function(json) {
+                complete: function(json) {
+                  console.log('ajax done');
                     if(json.valid == 0) {
+                      console.log('not valid');
                         $('.success-message').hide();
                         $('.error-message').hide();
                         $('.error-message').html(json.message);
                         $('.error-message').fadeIn();
                     }
                     else {
+                      console.log('valid');
                         $('.error-message').hide();
                         $('.success-message').hide();
                         $('.newsletter form').hide();

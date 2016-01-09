@@ -3,13 +3,19 @@ var nconf = require('nconf');
 var cradle = require('cradle');
 var _ = require('underscore');
 var moment = require('moment');
+var util = require('util');
+
 
 nconf.file(path.join(__dirname, 'config.json'));
 var couchHost = nconf.get('COUCH_HOST') || '127.0.0.1';
 var couchPort = nconf.get('COUCH_PORT') || 5984;
 
 
-var db = new(cradle.Connection)(couchHost, couchPort).database('hellocouch');
+isArray = function(a) {
+    return (!!a) && (a.constructor === Array);
+};
+
+var db = new(cradle.Connection)(couchHost, couchPort, {cache: true}).database('hellocouch');
 
 
 // create db if not exists
@@ -121,10 +127,47 @@ var getNextGiveaway = function getNextGiveaway(cb) {
   });
 }
 
+/**
+ * add an entry to the giveaway
+ */
+var addEntry = function addEntry(entry, giveawayID, cb) {
+  
+  load(giveawayID, function(err, giveaway) {
+    if (err) return cb(new Error('db.loadGiveaway returned an error while fetching giveaway ID ' + giveawayID + ' err: ' + err));
+    if (typeof(giveaway) === 'undefined') return cb(new Error('db.loadGiveaway did not return with a giveaway'));
+    
+//    console.log('giveaway inside addEntry')
+    console.log(giveaway);
+    console.log(entry);
+    
+    // some validation of the giveaway k/v
+    if (typeof(giveaway.entrants) === 'undefined') return cb(new Error('giveaway had no entrants key'));
+    //if (isArray(giveaway.entrants)) return cb(new Error('giveaway entrants was not an array. it is a: ' + giveaway.entrants.constructor));
+    
+    // add the giveaway entry to the giveaway document and save
+    db.merge(giveawayID, {
+      entrants: giveaway.entrants.concat(entry)
+    }, function(err, res) {
+      if (err) return err;
+      if (!res) return new Error('no response when adding new entry to giveaway document');
+      return cb(null);
+    });
+  });
+}
+
+/**
+ * return whether or not giveaway is still accepting entries
+ */
+var isGiveawayRunning = function isGiveawayRunning(id) {
+  
+}
+
+
 module.exports = {
   save: save,
   load: load,
   loadGiveaway: load,
   saveWinner: saveWinner,
-  getNextGiveaway: getNextGiveaway
+  getNextGiveaway: getNextGiveaway,
+  addEntry: addEntry
 }

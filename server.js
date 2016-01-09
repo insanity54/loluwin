@@ -4,7 +4,8 @@ var app = express();
 var nunjucks = require('nunjucks');
 var giveaway = require('./giveaway');
 var moment = require('moment');
-var bodyParser = require('body-parser')
+var bodyParser = require('body-parser');
+var util = require('util');
 //app.use( bodyParser.json() );       // to support JSON-encoded bodies
 app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
   extended: true
@@ -166,8 +167,18 @@ var serve = function serve() {
     entry.giveawayID = req.body.giveawayID;
     
     giveaway.addEntry(entry, entry.giveawayID, function(err) {
-      if (err) return res.status(403).send('nope');
-      return res.status(202).send('roger that');
+      if (err) {
+        //console.log(util.inspect(err));
+        console.log(err.message);
+        if (/The email format is invalid/.test(err.message))
+          return res.status(403).send({"valid":0,"message":"The email format is invalid"});
+        if (/The email field is required/.test(err.message))
+          return res.status(403).send({"valid":0,"message":"The email field is required"});
+        if (/The ign field is required/.test(err.message))
+          return res.status(403).send({"valid":0,"message":"The in-game-name field is required"});
+        return res.status(403).send({"valid":0,"message":"error with your entry"});
+      }
+      return res.status(202).send({"valid":1,"message":"thanks for entering!"});
     });
   });
   

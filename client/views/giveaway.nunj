@@ -91,19 +91,19 @@
                 data: postdata,
                 dataType: 'json',
                 success: function(json) {
-                    if(json.valid == 0) {
-                        $('.success-message').hide();
-                        $('.error-message').hide();
-                        $('.error-message').html(json.message);
-                        $('.error-message').fadeIn();
-                    }
-                    else {
-                        $('.error-message').hide();
-                        $('.success-message').hide();
-                        $('.newsletter form').hide();
-                        $('.success-message').html(json.message);
-                        $('.success-message').fadeIn();
-                    }
+                  console.log(json);
+                  $('.error-message').hide();
+                  $('.success-message').hide();
+                  $('.newsletter form').hide();
+                  $('.success-message').html(json.message);
+                  $('.success-message').fadeIn();
+                },
+                error: function(res) {
+                  console.log(res);
+                  $('.success-message').hide();
+                  $('.error-message').hide();
+                  $('.error-message').html(res.responseJSON.message);
+                  $('.error-message').fadeIn();
                 }
             });
             return false;
