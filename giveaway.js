@@ -79,7 +79,27 @@ var getNext = function getNext(cb) {
 /**
  * user entry to the giveaway
  */
-var 
+var addEntry = function addEntry(entry, giveawayID, cb) {
+  if (typeof(giveawayID) === 'undefined') return cb(new Error('addEntry() requires giveaway Id as second param'));
+  if (typeof(entry) === 'undefined') return cb(new Error('addEntry() requires entry object as first param'));
+  if (typeof(cb) === 'undefined') return cb(new Error('addEntry() requires the third argument to be a callback'));
+  
+  
+  db.loadGiveaway(giveawayID, function(err, giveaway) {
+    if (err) return cb(new Error('db.loadGiveaway returned an error while fetching giveaway ID ' + giveawayID + ' err: ' + err));
+    if (typeof(giveaway) === 'undefined') return cb(new Error('db.loadGiveaway did not return with a giveaway'));
+    
+    // add the giveaway entry to the giveaway document
+    console.log('giveaway inside addEntry')
+    console.log(giveaway);
+    
+    db.merge(giveawayID, {
+      entries: giveaway.entries.push(entry) 
+    });
+    
+    return cb(null);
+  });
+}
 
 
 

@@ -124,6 +124,7 @@ var getNextGiveaway = function getNextGiveaway(cb) {
 module.exports = {
   save: save,
   load: load,
+  loadGiveaway: load,
   saveWinner: saveWinner,
   getNextGiveaway: getNextGiveaway
 }

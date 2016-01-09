@@ -5,10 +5,10 @@ var nunjucks = require('nunjucks');
 var giveaway = require('./giveaway');
 var moment = require('moment');
 var bodyParser = require('body-parser')
-app.use( bodyParser.json() );       // to support JSON-encoded bodies
-//app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
-//  extended: true
-//})); 
+//app.use( bodyParser.json() );       // to support JSON-encoded bodies
+app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
+  extended: true
+})); 
 
 nunjucksEnv = new nunjucks.Environment(new nunjucks.FileSystemLoader(path.join(__dirname, '/client/views'), {
   autoescape: true
@@ -147,7 +147,8 @@ var serve = function serve() {
           sponsorName: sponsorName,
           sponsorAddress: sponsorAddress,
           sponsorEmail: sponsorEmail,
-          rulesLink: g.id+'/rules'
+          rulesLink: g.id+'/rules',
+          giveawayID: g._id
         });
       });
     });
@@ -160,14 +161,14 @@ var serve = function serve() {
     console.log(req.body);
 
     var entry = {};
-    entry.ign = req.body.ingamename;
+    entry.ign = req.body.ign;
     entry.email = req.body.email;
+    entry.giveawayID = req.body.giveawayID;
     
-    
-    giveaway.addEntry(entry, function(err) {
-      if (err) res.status(403);
-      res.status(202); 
-    }
+    giveaway.addEntry(entry, entry.giveawayID, function(err) {
+      if (err) return res.status(403).send('nope');
+      return res.status(202).send('roger that');
+    });
   });
   
 }
