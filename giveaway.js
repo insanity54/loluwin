@@ -82,6 +82,47 @@ var getNext = function getNext(cb) {
 
 
 /**
+ * returns list of active giveaways
+ *
+ * returns an client-safe array of giveaway objects like so
+ * [
+ *   {
+ *     title: "super giveaway 001",
+ *     id: "204db28c2a98062e81fc28f11e00110e",
+ *     thumbnail: "http://ipfs.pics/a38ura938983",
+ *     endDate: "2016-02-18 00:00:01"
+ *   },
+ *   {
+ *     title: "super giveaway 002",
+ *     id: "304db28c2a98062e81fc28f11e00110f",
+ *     thumbnail: "http://ipfs.pics/u38838y384",
+ *     endDate: "2016-02-24 00:00:01"
+ *   }
+ * ]
+ *
+ */
+var getActiveList = function getActiveList(cb) {
+  db.getAllGiveaways(function(err, rawGiveaways) {
+    if (err) {
+      console.error('error when getting active giveaways: ' + err);
+      return cb(err);
+    }
+    //console.log(rawGiveaways);
+    var giveawaysList = [];
+    _.forEach(rawGiveaways, function(giveaway) {
+      var gw = {};
+      gw['title'] = giveaway.value.title;
+      gw['id'] = giveaway.value._id;
+      gw['thumbnail'] = giveaway.value.picture;
+      gw['endDate'] = moment(giveaway.value.endDate).fromNow();
+      giveawaysList.push(gw);
+    });
+    return cb(null, giveawaysList);
+  });
+}
+
+
+/**
  * user entry to the giveaway
  */
 var addEntry = function addEntry(entry, giveawayID, cb) {
@@ -110,5 +151,7 @@ module.exports = {
   get: get,
   load: get,
   getNext: getNext,
+  getActiveList: getActiveList,
+  getList: getActiveList,
   addEntry: addEntry
 }

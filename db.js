@@ -36,7 +36,9 @@ db.exists(function(err, exists) {
 db.save('_design/giveaway', {
     all: {
         map: function (doc) {
-            if (doc.type == 'giveaway') emit(doc.title, doc);
+            if (doc.type == 'giveaway') {
+              if (doc.endDate && doc.title && doc.picture && doc.sponsorName) emit(doc.title, doc);
+            }
         }
     },
     endDates: {
@@ -136,13 +138,12 @@ var addEntry = function addEntry(entry, giveawayID, cb) {
     if (err) return cb(new Error('db.loadGiveaway returned an error while fetching giveaway ID ' + giveawayID + ' err: ' + err));
     if (typeof(giveaway) === 'undefined') return cb(new Error('db.loadGiveaway did not return with a giveaway'));
     
-//    console.log('giveaway inside addEntry')
-    console.log(giveaway);
-    console.log(entry);
-    
     // some validation of the giveaway k/v
     if (typeof(giveaway.entrants) === 'undefined') return cb(new Error('giveaway had no entrants key'));
-    //if (isArray(giveaway.entrants)) return cb(new Error('giveaway entrants was not an array. it is a: ' + giveaway.entrants.constructor));
+    
+    // ensure entry e-mail is unique
+    var existingEmails = _.pluck(giveaway.entrants, 'email');
+    if (_.contains(existingEmails, entry.email)) return cb(new Error('duplicate e-mail already entered'));
     
     // add the giveaway entry to the giveaway document and save
     db.merge(giveawayID, {
@@ -154,6 +155,20 @@ var addEntry = function addEntry(entry, giveawayID, cb) {
     });
   });
 }
+
+
+/**
+ * get list of giveaways
+ * !!! WARNING !!! NOT SAFE FOR SENDING TO CLIENT (contains entrants emails & names)
+ */
+var getAllGiveaways = function getActiveGiveaways(cb) {
+  db.view('giveaway/all', function(err, res) {
+    if (err) return cb(err);
+    if (!res) return cb(new Error('no response from db.getAllGiveaways'));
+    return cb(null, res);
+  });
+}
+
 
 /**
  * return whether or not giveaway is still accepting entries
@@ -169,5 +184,6 @@ module.exports = {
   loadGiveaway: load,
   saveWinner: saveWinner,
   getNextGiveaway: getNextGiveaway,
-  addEntry: addEntry
+  addEntry: addEntry,
+  getAllGiveaways: getAllGiveaways
 }

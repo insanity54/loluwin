@@ -43,8 +43,11 @@ var serve = function serve() {
    * home page
    */
   app.get('/', function (req, res) {
-    //res.send('hello');
-    res.redirect('/giveaway/next');
+    giveaway.getActiveList(function(err, list) {
+      console.log(list);
+      res.render('home.nunj', {giveawayList: list});
+    });
+    //res.redirect('/giveaway/next');
   });
 
 
@@ -176,12 +179,28 @@ var serve = function serve() {
           return res.status(403).send({"valid":0,"message":"The email field is required"});
         if (/The ign field is required/.test(err.message))
           return res.status(403).send({"valid":0,"message":"The in-game-name field is required"});
+        if (/duplicate e-mail already/.test(err.message))
+          return res.status(403).send({"valid":0,"message":"This e-mail has already entered!"});
         return res.status(403).send({"valid":0,"message":"error with your entry"});
       }
       return res.status(202).send({"valid":1,"message":"thanks for entering!"});
     });
   });
   
+  
+  /**
+   * serve privacy page
+   */
+  app.get('/privacy', function(req, res) {
+    return res.render('privacy.nunj');
+  });
+  
+  /**
+   * redirect to contact page
+   */
+  app.get('/contact', function(req, res) {
+    return res.redirect('http://grimtech.net/contact');
+  });
 }
 
 module.exports = {

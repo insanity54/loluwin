@@ -17,7 +17,7 @@
 <body>
     <header>
         <div class="container header">
-            <img src="/components/loluwin/img/logo.png" alt="Logo">
+            <a href="/"><img src="/components/loluwin/img/logo.png" alt="Logo"></a>
         </div>
     </header>
     <div class="container content-area">
@@ -61,8 +61,8 @@
                 <li><a href="">Tesla Motors</a></li>
                 <li><a href="">Tinus Lorvalds</a></li>
             </ul>
-            <button type="submit" class="btn btn-default pull-right btnx">DONATE</button>
-        </div>
+            <a href="https://bitpay.com/314412/donate" class="btn btn-default pull-right btnx">DONATE</a>
+      </div>
     </div>
     <footer>
         <div class="container footer">
@@ -91,7 +91,6 @@
                 data: postdata,
                 dataType: 'json',
                 success: function(json) {
-                  console.log(json);
                   $('.error-message').hide();
                   $('.success-message').hide();
                   $('.newsletter form').hide();
@@ -99,7 +98,6 @@
                   $('.success-message').fadeIn();
                 },
                 error: function(res) {
-                  console.log(res);
                   $('.success-message').hide();
                   $('.error-message').hide();
                   $('.error-message').html(res.responseJSON.message);
