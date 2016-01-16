@@ -110,12 +110,18 @@ var getActiveList = function getActiveList(cb) {
     //console.log(rawGiveaways);
     var giveawaysList = [];
     _.forEach(rawGiveaways, function(giveaway) {
-      var gw = {};
-      gw['title'] = giveaway.value.title;
-      gw['id'] = giveaway.value._id;
-      gw['thumbnail'] = giveaway.value.picture;
-      gw['endDate'] = moment(giveaway.value.endDate).fromNow();
-      giveawaysList.push(gw);
+      // if giveaway end time is valid
+      if (moment(giveaway.value.endDate).isValid()) {
+        // if giveaway is still active (ending in the future)
+        if (moment(giveaway.value.endDate).isAfter(moment())) {
+          var gw = {};
+          gw['title'] = giveaway.value.title;
+          gw['id'] = giveaway.value._id;
+          gw['thumbnail'] = giveaway.value.picture;
+          gw['endDate'] = moment(giveaway.value.endDate).fromNow();
+          giveawaysList.push(gw);
+        }
+      }
     });
     return cb(null, giveawaysList);
   });
