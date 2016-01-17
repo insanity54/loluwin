@@ -43,9 +43,16 @@ var serve = function serve() {
    * home page
    */
   app.get('/', function (req, res) {
-    giveaway.getActiveList(function(err, list) {
-      console.log(list);
-      res.render('home.nunj', {giveawayList: list});
+    giveaway.getActiveList(function(err, activeList) {
+      console.log(activeList);
+      
+      giveaway.getPastList(function(err, pastList) {
+        res.render('home.nunj', {
+          giveawayList: activeList,
+          pastGiveawayList: pastList
+        });
+        
+      });
     });
     //res.redirect('/giveaway/next');
   });
@@ -131,6 +138,8 @@ var serve = function serve() {
         var sponsorName = g.sponsorName;
         var sponsorAddress = g.sponsorAddress;
         var sponsorEmail = g.sponsorEmail;
+        var winnerIGN = g.winnerIGN;
+        var ended = g.ended || moment(endDate).isBefore(moment());
          
         if (!title) return res.status(500).render('error.nunj', {code: 500, message: 'giveaway has no title'});
         if (!description) return res.status(500).render('error.nunj', {code: 500, message: 'giveaway has no description'});
@@ -147,12 +156,15 @@ var serve = function serve() {
           picture: picture,
           endDate: moment(endDate).format(),
           endDateUnix: endDate,
-          drawingDate: drawingDate,
+          drawingDate: moment(drawingDate).format(),
+          drawingDateUnix: drawingDate,
           sponsorName: sponsorName,
           sponsorAddress: sponsorAddress,
           sponsorEmail: sponsorEmail,
           rulesLink: g.id+'/rules',
-          giveawayID: g._id
+          giveawayID: g._id,
+          winnerIGN: winnerIGN,
+          ended: ended
         });
       });
     });
@@ -175,12 +187,19 @@ var serve = function serve() {
         console.log(err.message);
         if (/The email format is invalid/.test(err.message))
           return res.status(403).send({"valid":0,"message":"The email format is invalid"});
+        
         if (/The email field is required/.test(err.message))
           return res.status(403).send({"valid":0,"message":"The email field is required"});
+        
         if (/The ign field is required/.test(err.message))
           return res.status(403).send({"valid":0,"message":"The in-game-name field is required"});
+        
         if (/duplicate e-mail already/.test(err.message))
           return res.status(403).send({"valid":0,"message":"This e-mail has already entered!"});
+        
+        if (/the giveaway has ended/.test(err.message))
+          return res.status(403).send({"valid":0,"message":"This giveaway has ended so you cannot enter it."});
+        
         return res.status(403).send({"valid":0,"message":"error with your entry"});
       }
       return res.status(202).send({"valid":1,"message":"thanks for entering!"});

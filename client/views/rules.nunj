@@ -30,3 +30,5 @@ or utilized in this Giveaway or by any human error which may occur in the proces
 In the event of a dispute concerning who submitted an e-mail entry, the entry will be declared to have been made by the authorized account holder of the e-mail address submitted at time of entry. An authorized account holder is defined as the natural person who is assigned to an e-mail address by an Internet access provider, online service provider, or other organization (e.g. business, educational institution, etc.) that is responsible for assigning e-mail addresses for the domain associated with the submitted e-mail address.
 <br><br>
 THIS GIVEAWAY IS VOID WHERE PROHIBITED BY LAW. NO PURCHASE NECESSARY.
+
+{% include "footer-nav.nunj" %}

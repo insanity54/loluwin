@@ -15,7 +15,7 @@ isArray = function(a) {
     return (!!a) && (a.constructor === Array);
 };
 
-var db = new(cradle.Connection)(couchHost, couchPort, {cache: true}).database('hellocouch');
+var db = new(cradle.Connection)(couchHost, couchPort, {cache: false}).database('hellocouch');
 
 
 // create db if not exists

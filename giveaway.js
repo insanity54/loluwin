@@ -104,7 +104,7 @@ var getNext = function getNext(cb) {
 var getActiveList = function getActiveList(cb) {
   db.getAllGiveaways(function(err, rawGiveaways) {
     if (err) {
-      console.error('error when getting active giveaways: ' + err);
+      console.error('error when getting all (active) giveaways: ' + err);
       return cb(err);
     }
     //console.log(rawGiveaways);
@@ -127,6 +127,31 @@ var getActiveList = function getActiveList(cb) {
   });
 }
 
+var getEndedList = function getEndedList(cb) {
+  db.getAllGiveaways(function(err, rawGiveaways) {
+    if (err) {
+      console.error('error when getting all (ended) giveaways: ' + err);
+      return cb(err);
+    }
+    
+    var endedGiveawaysList = [];
+    _.forEach(rawGiveaways, function(giveaway) {
+      // if giveaway end time is valid
+      if (moment(giveaway.value.endDate).isValid()) {
+        // if giveaway has ended
+        if (moment(giveaway.value.endDate).isBefore(moment())) {
+          var gw = {};
+          gw['title'] = giveaway.value.title;
+          gw['id'] = giveaway.value._id;
+          gw['thumbnail'] = giveaway.value.picture;
+          gw['endDate'] = moment(giveaway.value.endDate).fromNow();
+          endedGiveawaysList.push(gw);
+        }
+      }
+    });
+    return cb(null, endedGiveawaysList);
+  });
+}
 
 /**
  * user entry to the giveaway
@@ -136,18 +161,30 @@ var addEntry = function addEntry(entry, giveawayID, cb) {
   if (typeof(entry) === 'undefined') return cb(new Error('addEntry() requires entry object as first param'));
   if (typeof(cb) === 'undefined') return cb(new Error('addEntry() requires the third argument to be a callback'));
   
-  var validation = new Validator(entry, submissionRules);
- 
-  if (validation.fails()) {
-    return cb(new Error(util.inspect(validation.errors.all())));
-  }
-  
-  else {
-    db.addEntry(entry, giveawayID, function(err) {
-      if (err) return cb(err);
-      return cb(null);
-    });
-  }
+  // validate giveaway details
+  //   - if entering for a giveaway that has ended, reject entry
+  //   - if giveaway id is not listed in the database as giveaway, reject entry
+  db.load(giveawayID, function(err, gw) {
+    if (err) return cb(new Error('problem retrieving giveaway id'));
+    if (gw.type !== 'giveaway') return cb(new Error('invalid giveaway id'));
+    if (typeof(gw.endDate) === 'undefined') return cb(new Error('the giveaway you are entering has no end date'));
+    if (moment(gw.endDate, 'x').isBefore(moment())) return cb(new Error('the giveaway has ended so you cannot enter it')); 
+    
+    // validate form values
+    // i.e. make sure e-mail is an e-mail, and name is not undefined
+    var validation = new Validator(entry, submissionRules);
+
+    if (validation.fails()) {
+      return cb(new Error(util.inspect(validation.errors.all())));
+    }
+
+    else {
+      db.addEntry(entry, giveawayID, function(err) {
+        if (err) return cb(err);
+        return cb(null);
+      });
+    }
+  });
 }
 
 
@@ -159,5 +196,7 @@ module.exports = {
   getNext: getNext,
   getActiveList: getActiveList,
   getList: getActiveList,
+  getPastList: getEndedList,
+  getEndedList: getEndedList,
   addEntry: addEntry
 }

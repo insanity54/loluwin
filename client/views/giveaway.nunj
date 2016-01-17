@@ -9,7 +9,7 @@
     <meta name="author" content="">
     <meta name="Copyright" content="">
     <link rel="icon" href="images/favicon.ico">
-    <title></title>
+    <title>LOLUWIN Giveaway for {{ description }}</title>
     <link href="/components/bootstrap/dist/css/bootstrap.css" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="/components/loluwin/css/jquery.countdown.css">
     <link href="/components/loluwin/css/custom.css" rel="stylesheet">
@@ -22,15 +22,22 @@
     </header>
     <div class="container content-area">
         <div class="col-sm-6">
+          
+            {# page title #}
             <h1>{{ title }}</h1>
             <h4>Enter for a chance to win {{ description }}!*</h4>
             <img src="{{ picture }}" alt="{{ description }} banner" class="img-responsive" width="345" height="393">
-            <h3>Countdown until drawing</h3>
+          
+            {# countdown clock #}
+            <h3 id="countdown-heading">Countdown until drawing</h3>
             <div class="text-center">
                 <div id="clock"></div>
                 <h4 class="endDate">{{ endDate }}</h4>
             </div>
+          
         </div>
+      
+        {% if not ended %}
         <div class="col-sm-offset-1 col-sm-5 contactform clearfix">
             <form id="chance" method="post">
                 <h4>Enter for a chance to win!*</h4>
@@ -47,11 +54,27 @@
                 <button type="submit" class="btn btn-default pull-right btnx">ENTER</button>
             </form>
         </div>
+        {% else %}
+          <div class="col-sm-offset-1 col-sm-5 winner clearfix">
+            {# winner display (hidden until winner chosen) #}
+            {% if winnerIGN %}
+            <h3 id="winner-heading">Congratulations to the winner!</h3>
+            <div class="text-center">
+              <div id="winner-icon"></div>
+              <p id="winner-name"><a id="winner-link" href="http://na.op.gg/summoner/userName={{ winnerIGN }}">{{ winnerIGN }}</a></p>
+            </div>
+            {% else %}
+            <h3 id="winner-heading">A winner will be chosen shortly!</h3>
+            {% endif %}
+        </div>
+      
+        {% endif %}
+      
         <div class="col-sm-offset-1 col-sm-5 donate clearfix">
             <h4>Donors</h4>
             <p>Big thanks to the following donors who keep this site running.</p>
-            <p>Want to support this site? Donators get their name or website displayed on this website for 90 days. Donations do not change your chances of winning.</p>
             {{ donorList }}
+            <p>Want to support this site? Donators get their name or website displayed on this website for 90 days. Donations do not change your chances of winning.</p>
             <ul>
                 <li><a href="">@notch</a></li>
                 <li><a href="">cool-man-yo</a></li>
@@ -67,7 +90,7 @@
     <footer>
         <div class="container footer">
             <p>*No purchase necessary. Must be at least 18 years of age to enter. Need not be present at drawing to win. One entry per person. Winning prize offered is on League of Legends NA server only. Void where prohibited. See <a href="{{ rulesLink }}" id="rulesLink" class="link">official rules</a></p>
-          <p class="text-center"><a href="/privacy">Privacy Policy</a> | <a href="/contact">Contact</a></p>
+          {% include "footer-nav.nunj" %}
         </div>
     </footer>
     <script type="text/javascript" src="/components/jquery/dist/jquery.min.js"></script>
@@ -109,13 +132,26 @@
     </script>
     <script type="text/javascript">
     
-    // update countdown clock
-    $("#clock")
-      .countdown(moment({{ endDateUnix }}, 'x').format('YYYY[/]MM/DD'), function (event) {
-        $(this).text(
-          event.strftime('%D days %H:%M:%S')
-        );
-      });
+    // countdown clock
+    // display "giveaway is over" if drawing time is elapsed
+    if (moment({{ drawingDateUnix }}, 'x').isBefore(moment())) {
+      $("#clock").text("Giveaway is over");
+    }
+    
+    // display "drawing will occur soon" if entry time is elapsed
+    else if (moment({{ endDateUnix }}, 'x').isBefore(moment())) {
+      $("#clock").text("Drawing soon");
+    }
+    
+    else {
+      // set up countdown clock
+      $("#clock")
+        .countdown(moment({{ endDateUnix }}, 'x').format('YYYY[/]MM[/]DD'), function (event) {
+          $(this).text(
+            event.strftime('%D days %H:%M:%S')
+          );
+        });
+    }
       
     // display end time
     //$("#endDate").html(moment({{ endDate }}).format());

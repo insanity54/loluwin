@@ -37,6 +37,19 @@
               </div>
             {% endfor %}
             </div>
+            
+            {% if pastGiveawayList %}
+            <hr>
+            <h4>Past Giveaways</h4>
+            <div class="row">
+            {% for pastGiveaway in pastGiveawayList %}
+              <div class="col-sm-6">
+                <a class="past-giveaway-link" href="/giveaway/{{ pastGiveaway.id }}">{{ pastGiveaway.title }}</a>
+                <p>Ended {{ pastGiveaway.endDate }}</p>
+              </div>
+            {% endfor %}
+            </div>
+            {% endif %}
 
           
         </div>
@@ -64,7 +77,7 @@
     </div>
     <footer>
         <div class="container footer">
-            <p class="text-center"><a href="/privacy">Privacy Policy</a> | <a href="/contact">Contact</a></p>
+            {% include "footer-nav.nunj" %}
         </div>
     </footer>
     <script type="text/javascript" src="/components/jquery/dist/jquery.min.js"></script>

@@ -61,3 +61,6 @@ body{
         width: 900px!important;
     }
 }
+.past-giveaway-link {
+  text-decoration:line-through;
+}
