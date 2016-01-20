@@ -26,7 +26,20 @@
             {# page title #}
             <h1>{{ title }}</h1>
             <h4>Enter for a chance to win {{ description }}!*</h4>
+            {# the picture for the giveaway #}
             <img src="{{ picture }}" alt="{{ description }} banner" class="img-responsive" width="345" height="393">
+
+            {# a display of the number of giveaway entries, #}
+            {# with bonus grammar correct! #}
+            <p id="entries">
+              {{ numberOfEntries }}
+              {% if numberOfEntries == 1 %}
+                person has
+              {% else %}
+                people have
+              {% endif %}
+              entered so far!
+            </p>
           
             {# countdown clock #}
             <h3 id="countdown-heading">Countdown until drawing</h3>

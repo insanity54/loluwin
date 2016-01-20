@@ -3,7 +3,11 @@ var db = require('./db');
 var _ = require('underscore');
 var Validator = require('validatorjs');
 var util = require('util'); 
+var random = require('node-random');
+var chalk = require('chalk');
 
+var gwErr = new Error('first param must be a giveaway ID');
+var idRegex = /[a-fA-F0-9]{32}/;
 var submissionRules = {
 	ign: 'required',
 	email: 'required|email',
@@ -60,6 +64,9 @@ var create = function create(options, cb) {
  * retrieve a giveaway given its id
  */
 var get = function get(id, cb) {
+  if (typeof(id) === 'undefined') return cb(gwErr);
+  if (!idRegex.test(id)) return cb(gwErr);
+  if (typeof(cb) !== 'function') return cb(new Error('second param must be a callback function'));
   db.load(id, function(err, doc) {
     if (err) throw err;
     return cb(null, doc);
@@ -189,6 +196,50 @@ var addEntry = function addEntry(entry, giveawayID, cb) {
 
 
 
+var chooseWinner = function chooseWinner(giveawayID, cb) {
+  if (typeof(giveawayID) === 'undefined') return cb(gwErr);
+  if (!idRegex.test(giveawayID)) return cb(gwErr);
+  if (typeof(cb) !== 'function') {
+    console.log('typeof second param was ' + typeof(cb));
+    return cb(new Error('second param must be a callback function'));
+  }
+  
+  get(giveawayID, function(err, gw) {
+    if (err) return cb(err);
+    
+    // validate values
+    if (!gw.entrants.length) return cb(new Error('could not get number of entrants'));
+    
+    // get final (zero indexed) values
+    var min = 0;
+    var max = (gw.entrants.length-1);
+    
+    random.numbers({
+      "number": 1,
+      "minimum": min,
+      "maximum": max
+    }, function(err, winningNumber) {
+      if (err) return cb(err);
+      
+      console.log();
+      console.log('choosing winner of giveaway %s.', chalk.blue(giveawayID));
+      console.log('there were %s entries to this giveaway', chalk.blue(gw.entrants.length));
+      console.log();
+      console.log(chalk.red('WINNER WINNER WINNER'));
+      console.log('congrats to entry number %s, %s', chalk.blue(winningNumber), chalk.yellow(gw.entrants[winningNumber].ign));
+                  
+//      data.forEach(function(d) {
+//          console.log(d);
+//      });
+      return cb(null, gw.entrants[winningNumber]);
+    });
+    
+
+      
+    
+  });
+}
+
 module.exports = {
   create: create,
   get: get,
@@ -198,5 +249,6 @@ module.exports = {
   getList: getActiveList,
   getPastList: getEndedList,
   getEndedList: getEndedList,
-  addEntry: addEntry
+  addEntry: addEntry,
+  chooseWinner: chooseWinner
 }

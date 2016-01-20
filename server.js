@@ -140,6 +140,7 @@ var serve = function serve() {
         var sponsorEmail = g.sponsorEmail;
         var winnerIGN = g.winnerIGN;
         var ended = g.ended || moment(endDate).isBefore(moment());
+        var numberOfEntries = g.entrants.length;
          
         if (!title) return res.status(500).render('error.nunj', {code: 500, message: 'giveaway has no title'});
         if (!description) return res.status(500).render('error.nunj', {code: 500, message: 'giveaway has no description'});
@@ -164,7 +165,8 @@ var serve = function serve() {
           rulesLink: g.id+'/rules',
           giveawayID: g._id,
           winnerIGN: winnerIGN,
-          ended: ended
+          ended: ended,
+          numberOfEntries: numberOfEntries
         });
       });
     });
