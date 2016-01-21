@@ -1,0 +1,4 @@
+# Install docker using a role from Ansible Galaxy
+- name: docker
+  src: dochang.docker
+  path: provisioning/roles/
