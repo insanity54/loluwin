@@ -6,10 +6,12 @@ var giveaway = require('./giveaway');
 var moment = require('moment');
 var bodyParser = require('body-parser');
 var util = require('util');
+var querystring = require('querystring');
 //app.use( bodyParser.json() );       // to support JSON-encoded bodies
 app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
   extended: true
-})); 
+}));
+
 
 nunjucksEnv = new nunjucks.Environment(new nunjucks.FileSystemLoader(path.join(__dirname, '/client/views'), {
   autoescape: true
@@ -21,12 +23,31 @@ app.use(express.static(path.join(__dirname, 'client')));
 
 
 var validateID = function validateID(req, res, next) {
+  if (typeof(req.params.id) === 'undefined')
+    return res.status(403).render('error.nunj', {code: 403, message: 'id required'});
   var giveawayID = req.params.id.toLowerCase();
   if (giveawayID.match(/[a-f0-9]{32}/)) {
     console.log('getting giveaway %s', giveawayID);
     req.loluwin.giveawayID = giveawayID;
     next();
-  } else res.status(402).send('invalid id. <a href="/">home</a>');
+  } else res.status(403).render('error.nunj', {code: 403, message: 'invalid id.'});
+}
+
+var validateToken = function validateToken(req, res, next) {
+  if (typeof(req.loluwin) === 'undefined')
+    return res.status(403).render('error.nunj', {code: 500, message: 'wrongly initiated request'});
+  
+  // make sure there is a token in the query
+  if (typeof(req.query.token) === 'undefined')
+    return res.status(403).render('error.nunj', {code: 403, message: 'token required'});
+  
+  var token = req.query.token;
+  if (/[A-Za-z0-9]{128}/.test(token)) {
+    // valid token string
+    req.loluwin.token = token;
+    next();
+  }
+  else res.status(403).render('error.nunj', {code: 403, message: 'invalid token.'});
 }
 
 var setupReq = function setupReq(req, res, next) {
@@ -64,8 +85,10 @@ var serve = function serve() {
   app.get('/giveaway/next', function (req, res) {
     giveaway.getNext(function(err, g) {
       if (err) res.status(500).render('error.nunj', {code: 500, message: 'could not get next giveaway'});
-      console.log(g);
-      res.redirect('/giveaway/' + g.id);
+      if (typeof(g) === 'undefined')
+        res.redirect('/');
+      else
+        res.redirect('/giveaway/' + g.id);
     });
   });
   
@@ -210,6 +233,32 @@ var serve = function serve() {
   
   
   /**
+   * get the drawing view of a specific giveaway.
+   * this is the screen that 
+   *   - loluwin sends a one-time secret link to admin
+   *     - via email
+   *     - GET params contain secret token
+   *   - admin sees right before starting drawing
+   *   - admin visually busts any punks
+   *   - admin presses "DRAW" or a link to database editor
+   */
+  app.get('/giveaway/:id/drawing',
+    setupReq,
+    validateID,
+    validateToken,
+    function (req, res) {
+      // load the giveaway details
+      giveaway.load(req.loluwin.giveawayID, function (err, g) {
+        
+        res.status(200).render('drawing.nunj', {
+          entrants: g.entrants
+        });
+      });
+  });
+  
+  
+  
+  /**
    * serve privacy page
    */
   app.get('/privacy', function(req, res) {
@@ -225,7 +274,11 @@ var serve = function serve() {
 }
 
 module.exports = {
-  serve: serve
+  serve: serve,
+  app: app,
+  validateID: validateID,
+  validateToken: validateToken,
+  setupReq: setupReq
 }
 
 

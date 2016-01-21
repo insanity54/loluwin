@@ -106,7 +106,7 @@
           {% include "footer-nav.nunj" %}
         </div>
     </footer>
-    <script type="text/javascript" src="/components/jquery/dist/jquery.min.js"></script>
+    <script src="/components/jquery/jquery.min.js"></script>
     <script src="/components/jquery.countdown/dist/jquery.countdown.js"></script>
     <script src="/components/moment/moment.js"></script>
     <script type="text/javascript">

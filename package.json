@@ -19,6 +19,7 @@
   "homepage": "https://github.com/insanity54/loluwin",
   "dependencies": {
     "bitcore": "^2.0.0",
+    "bitcore-lib": "^0.13.11",
     "bitcore-payment-protocol": "^1.0.1",
     "body-parser": "^1.14.2",
     "chalk": "^1.1.1",
