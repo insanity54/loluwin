@@ -22,7 +22,7 @@ registry.registerService({name: 'loluwin-clock'}, function(err, res) {
 
 var detectGiveawayEndings = function detectGiveawayEndings() {
   console.log('detecting...');
-  
+    //var result = querystring.stringify({token: ""}); // how to make the querystring containing the token
 }
 
 
