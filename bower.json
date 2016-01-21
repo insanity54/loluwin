@@ -19,6 +19,10 @@
   "dependencies": {
     "moment": "~2.10.6",
     "jquery.countdown": "~2.1.0",
-    "bootstrap": "~3.3.6"
+    "bootstrap": "~3.3.6",
+    "Buttons": "https://github.com/DataTables/Buttons",
+    "underscore": "~1.8.3",
+    "backgrid": "~0.3.5",
+    "backbone": "~1.2.3"
   }
 }
