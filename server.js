@@ -7,7 +7,7 @@ var moment = require('moment');
 var bodyParser = require('body-parser');
 var util = require('util');
 var querystring = require('querystring');
-//app.use( bodyParser.json() );       // to support JSON-encoded bodies
+app.use( bodyParser.json() );       // to support JSON-encoded bodies
 app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
   extended: true
 }));
@@ -42,7 +42,7 @@ var validateToken = function validateToken(req, res, next) {
     return res.status(403).render('error.nunj', {code: 403, message: 'token required'});
   
   var token = req.query.token;
-  if (/[A-Za-z0-9]{128}/.test(token)) {
+  if (/[A-Za-z0-9-_]{128}/.test(token)) {
     // valid token string
     req.loluwin.token = token;
     next();
@@ -205,6 +205,7 @@ var serve = function serve() {
     entry.ign = req.body.ign;
     entry.email = req.body.email;
     entry.giveawayID = req.body.giveawayID;
+    entry.valid = true;
     
     giveaway.addEntry(entry, entry.giveawayID, function(err) {
       if (err) {
@@ -251,7 +252,8 @@ var serve = function serve() {
       giveaway.load(req.loluwin.giveawayID, function (err, g) {
         
         res.status(200).render('drawing.nunj', {
-          entrants: g.entrants
+          giveawayID: g.id,
+          token: req.loluwin.token
         });
       });
   });
@@ -270,6 +272,11 @@ var serve = function serve() {
    */
   app.get('/contact', function(req, res) {
     return res.redirect('http://grimtech.net/contact');
+  });
+  
+  
+  app.get('/donate', function(req, res) {
+    return res.render('donate.nunj');
   });
 }
 

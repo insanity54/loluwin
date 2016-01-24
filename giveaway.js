@@ -73,6 +73,17 @@ var get = function get(id, cb) {
   });
 }
 
+/**
+ * retrireve a giveaway token (for admin authentication)
+ */
+var getToken = function getToken(id, cb) {
+  get(id, function(err, gw) {
+    if (err) return cb(err);
+    if (!gw.token) return cb(new Error('giveaway does not have a token'));
+    return cb(null, gw.token);
+  });
+}
+
 
 /**
  * retrieve the soonest ending giveaway
@@ -180,7 +191,7 @@ var addEntry = function addEntry(entry, giveawayID, cb) {
     // validate form values
     // i.e. make sure e-mail is an e-mail, and name is not undefined
     var validation = new Validator(entry, submissionRules);
-
+ 
     if (validation.fails()) {
       return cb(new Error(util.inspect(validation.errors.all())));
     }
@@ -194,7 +205,16 @@ var addEntry = function addEntry(entry, giveawayID, cb) {
   });
 }
 
-
+var updateEntry = function updateEntry(entry, giveawayID, cb) {
+  if (typeof(entry) === 'undefined') return cb(new Error('first param must be an entry object'));
+  if (typeof(giveawayID) === 'undefined') return cb(new Error('second param must be a giveawayID string'));
+  if (typeof(cb) === 'undefined') return cb(new Error('third param must be a callback function'));
+  
+  db.updateEntry(entry, giveawayID, function(err) {
+    if (err) return res.status(500).render('error.nunj', {code: 500, message: err});
+    return cb(null);
+  });
+}
 
 var chooseWinner = function chooseWinner(giveawayID, cb) {
   if (typeof(giveawayID) === 'undefined') return cb(gwErr);
@@ -243,6 +263,7 @@ var chooseWinner = function chooseWinner(giveawayID, cb) {
 module.exports = {
   create: create,
   get: get,
+  getToken: getToken,
   load: get,
   getNext: getNext,
   getActiveList: getActiveList,
@@ -250,5 +271,6 @@ module.exports = {
   getPastList: getEndedList,
   getEndedList: getEndedList,
   addEntry: addEntry,
+  updateEntry: updateEntry,
   chooseWinner: chooseWinner
 }

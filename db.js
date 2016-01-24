@@ -156,6 +156,38 @@ var addEntry = function addEntry(entry, giveawayID, cb) {
   });
 }
 
+/**
+ * update an entry in the giveaway
+ *
+ * entry.id must be defined
+ * 
+ * @param {object} entry
+ * @param {number} entry.id
+ * @param {hex} giveawayID
+ * @callback cb
+ */
+var updateEntry = function updateEntry(entry, giveawayID, cb) {
+  load(giveawayID, function(err, gw) {
+    if (err) return cb(new Error(err));
+    if (typeof(gw) === 'undefined') return cb(new Error('db.loadGiveaway did not return with a giveaway'));
+    
+    // find the index of the entry based on the entry ID
+    index = _.findIndex(gw.entrants, function(ent) { return ent.id == entry.id });
+
+    // merge putted entry with gw.entrants
+    gw.entrants[index] = entry;
+
+    db.merge(giveawayID, {
+      entrants: gw.entrants
+    }, function(err, res) {
+      if (err) return err;
+      if (!res) return new Error('no response when updating entry');
+      return cb(null);
+    });
+  });
+}
+
+
 
 /**
  * get list of giveaways
@@ -169,6 +201,14 @@ var getAllGiveaways = function getActiveGiveaways(cb) {
   });
 }
 
+//var getEndedGiveaways = function getEndedGiveaways(cb) {
+//  db.view('giveaway/endDates', function(err, res) {
+//    if (err) return cb(err);
+//    if (!res) return cb(new Error('no response from db.getEndedGiveaways'));
+//    return cb(null, res);
+//  }); 
+//}
+
 
 /**
  * return whether or not giveaway is still accepting entries
@@ -177,13 +217,28 @@ var isGiveawayRunning = function isGiveawayRunning(id) {
   
 }
 
+/**
+ * a way to add key/values to an existing document.
+ *
+ * used by the clock module to add doc.ended and doc.token
+ *
+ * @param {string} giveawayID - couchDB document ID
+ * @param {object} members - object of k/v to add
+ * @callback cb (err, res)
+ */
+var addMembers = function addMembers(giveawayID, members, cb) {
+  db.merge(giveawayID, members, cb);
+}
+
 
 module.exports = {
   save: save,
+  addMembers: addMembers,
   load: load,
   loadGiveaway: load,
   saveWinner: saveWinner,
   getNextGiveaway: getNextGiveaway,
   addEntry: addEntry,
+  updateEntry: updateEntry,
   getAllGiveaways: getAllGiveaways
 }

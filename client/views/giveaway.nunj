@@ -97,7 +97,7 @@
                 <li><a href="">Tesla Motors</a></li>
                 <li><a href="">Tinus Lorvalds</a></li>
             </ul>
-            <a href="https://bitpay.com/314412/donate" class="btn btn-default pull-right btnx">DONATE</a>
+            <a href="/donate" class="btn btn-default pull-right btnx">DONATE</a>
       </div>
     </div>
     <footer>
@@ -106,7 +106,7 @@
           {% include "footer-nav.nunj" %}
         </div>
     </footer>
-    <script src="/components/jquery/jquery.min.js"></script>
+    <script src="/components/jquery/dist/jquery.min.js"></script>
     <script src="/components/jquery.countdown/dist/jquery.countdown.js"></script>
     <script src="/components/moment/moment.js"></script>
     <script type="text/javascript">

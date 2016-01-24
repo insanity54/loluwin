@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/insanity54/loluwin",
   "dependencies": {
+    "base64url": "^1.0.5",
     "bitcore": "^2.0.0",
     "bitcore-lib": "^0.13.11",
     "bitcore-payment-protocol": "^1.0.1",
@@ -26,6 +27,7 @@
     "commander": "^2.9.0",
     "consul": "^0.23.0",
     "cradle": "^0.6.9",
+    "crypto": "0.0.3",
     "docker-pig": "^0.5.0",
     "express": "^4.13.3",
     "later": "^1.2.0",

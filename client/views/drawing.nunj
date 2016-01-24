@@ -11,7 +11,6 @@
     <link rel="icon" href="images/favicon.ico">
     <title>LOLUWIN Giveaway for {{ description }}</title>
     <link href="/components/bootstrap/dist/css/bootstrap.css" rel="stylesheet">
-    <link rel="stylesheet" type="text/css" href="/components/loluwin/css/jquery.countdown.css">
     <link href="/components/loluwin/css/custom.css" rel="stylesheet">
     <link rel="stylesheet" href="/components/backgrid/lib/backgrid.css" type="text/css">
 </head>
@@ -43,34 +42,13 @@
             </p>
           
             {# list of entrants #}
-            <table id="entrants-table" class="table table-striped table-hover table-users">
-              <thead>
-                <tr>
-                  <th>IGN</th>
-                  <th>E-Mail</th>
-                  <th>valid</th>
-                </tr>
-              </thead>
-              <tbody>
-                {% for entry in entrants %}
-                <tr id="entry-{{ loop.index0 }}-row">
-                  <td>{{ entry.ign }}</td>
-                  <td>{{ entry.email }}</td>
-                  <td>true</td>
-                </tr>
-                {% endfor %}
-              </tbody>
-            </table>
-          
-            <button id="save-button" class="btn btn-default pull-right btnx">SAVE</button>
-          
+            <div id="entrants-grid"></div>
           
         </div>
       
-        <div class="col-sm-6 admin-operations">
-          <p>Ready to start the drawing? Or are there cheater punks in the database that need busting?</p>
-          <a href="https://bitpay.com/314412/donate" class="btn btn-default pull-right btnx">INITIATE DRAWING</a>
-          <a href="https://bitpay.com/314412/donate" class="btn btn-default pull-right btnx">EDIT DATABASE</a>
+        <div id="controls" class="col-sm-6 admin-operations">
+          <p>Busted all the punks? Start the drawing!</p>
+          <button id="draw-button" class="btn btn-default pull-right btnx">DRAW A WINNER</button>
         </div>
       
       </div>
@@ -81,7 +59,7 @@
           {% include "footer-nav.nunj" %}
         </div>
     </footer>
-    <script src="/components/jquery/jquery.min.js"></script>
+    <script src="/components/jquery/dist/jquery.min.js"></script>
     <script src="/components/underscore/underscore.js"></script>
     <script src="/components/backbone/backbone.js"></script>
     <script src="/components/backgrid/lib/backgrid.js"></script>
@@ -125,16 +103,41 @@
     // set up editable table
     $(document).ready(function() {
 
-    var Entry = Backbone.Model.extend({});
+    var Entry = Backbone.Model.extend({
+      url: function() { return '/api/v1/giveaway/{{ giveawayID }}/entrants/'+this.id+'?token={{ token }}' },
+      initialize: function () {
+        Backbone.Model.prototype.initialize.apply(this, arguments);
+        this.on("change", function (model, options) {
+        if (options && options.save === false) return;
+          model.save();
+        });
+      }
+    });
 
+      
+//    var globalToken = '{{ token }}';
+//    var urlWithToken = function(url, token) {
+//        return function() {
+//            return url + "?token=" + token;
+//        };
+//    };
+//
+//    var MyModel = Backbone.Model.extend({
+//        url: urlWithToken('/my/url/', globalKey)
+//    });
+      
+    //?token={{ token }}
+      
+      
+    
     var Entries = Backbone.Collection.extend({
       model: Entry,
-      url: "./entries.json"
+      url: '/api/v1/giveaway/{{ giveawayID }}/entrants?token={{ token }}',
     });
 
     var entries = new Entries();
 
-    // Fetch some countries from the url
+    // Fetch entries from the url
     entries.fetch();
 
     // Column definitions
@@ -150,14 +153,17 @@
       name: "ign",
       label: "IGN",
       // The cell type can be a reference of a Backgrid.Cell subclass, any Backgrid.Cell subclass instances like *id* above, or a string
-      cell: "string" // This is converted to "StringCell" and a corresponding class in the Backgrid package namespace is looked up
+      cell: "string", // This is converted to "StringCell" and a corresponding class in the Backgrid package namespace is looked up
+      editable: true
     }, {
       name: "email",
       label: "E-Mail",
-      cell: "integer" // An integer cell is a number cell that displays humanized integers
+      editable: true,
+      cell: "string" // An integer cell is a number cell that displays humanized integers
     }, {
       name: "valid",
       label: "Valid",
+      editable: true,
       cell: "boolean" // A cell type for floating point value, defaults to have a precision 2 decimal numbers
     }];
 
@@ -165,30 +171,45 @@
     var grid = new Backgrid.Grid({
       columns: columns,
       collection: entries,
+      events: {
+        "backgrid:rendered": 'tiesto'
+      },
+      tiesto: function(e) {
+        console.log('tiesto!');
+        console.log(e);
+      }
     });
+      
+      
+    
 
     // Render the grid and attach the Grid's root to your HTML document
-    $("#entries-table").append(grid.render().el);
+    $("#entrants-grid").append(grid.render().el);
       
+    // create a save button
+    var Controls = Backbone.View.extend({
+      el: '#controls',
+      events: {
+        "click #draw-button" : "clickAction"
+      },
+      clickAction: function(e) {
+        console.log('click %s', e);
+        console.log(entries);
+        //entries.sync(); 
+      }
+    });
       
+    var controls = new Controls();
       
-      $('#save-button').click( function() {
-        
-
-        console.log('save button clicked');
-        console.log(editableGrid.data);
-        
-        // get an array 1 thru <entries total> of true or false showing valid state
-        var deets = _.map(editableGrid.data, function(d, i) {
-          return {id: d.id, ign: d.columns[0], email: d.columns[1], valid: d.columns[2]};
-        }); // reverse because EditableGrid data is in reverse order
-        //deets.reverse();
-
-        console.log(deets);
-        console.log(jQuery.param(deets, false));
-        console.log(JSON.stringify(deets));
-        
-      });
+//      
+//      $('#save-button').click( function() {
+//        
+//
+//        console.log('save button clicked');
+////        console.log(entries);
+////        entries.sync('update');
+//        
+//      });
       
       
       
