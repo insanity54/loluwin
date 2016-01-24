@@ -4,6 +4,7 @@ language: node
 
 services:
   - docker
+  - couchdb
 
 before_install:
   - docker build -t insanity54/loluwin .
