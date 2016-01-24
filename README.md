@@ -10,20 +10,19 @@ a web app for facilitating semi-automatic weekly giveaways
 ### create a new giveaway
 
 ```
-node luw.js [TITLE] [DESCRIPTION] [PICTURE-URL]
+node luw.js create --help
 ```
 
 
 ## Todo
 
-scale giveaway image size to fit in box
 
 
 
 ## Stack
 
 NGINX load balancer
-NODE app ran by Foreman
+Node app run by Foreman inside Docker
   - web
   - db
   - clock
