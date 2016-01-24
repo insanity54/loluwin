@@ -1,6 +1,7 @@
 # loluwin
 blah
 
+https://travis-ci.org/insanity54/loluwin.svg?branch=master
 
 ## server (admin) commands
 
