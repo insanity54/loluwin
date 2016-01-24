@@ -10,7 +10,7 @@ before_install:
   - docker build -t insanity54/loluwin .
   - docker login -e="$DOCKER_EMAIL" -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
   - docker push insanity54/loluwin
-  - docker run -d -p 127.0.0.1:3000 insanity54/loluwin
+  - docker run -d -p 3000 insanity54/loluwin
   - docker ps -a
 
 script:
