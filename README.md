@@ -1,7 +1,9 @@
 # loluwin
-blah
 
-https://travis-ci.org/insanity54/loluwin.svg?branch=master
+[![Build Status](https://travis-ci.org/insanity54/loluwin.svg?branch=master)](https://travis-ci.org/insanity54/loluwin)
+
+a web app for facilitating semi-automatic weekly giveaways
+
 
 ## server (admin) commands
 
