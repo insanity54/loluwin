@@ -7,7 +7,7 @@ var util = require('util');
 
 
 nconf.file(path.join(__dirname, 'config.json'));
-var couchHost = nconf.get('COUCH_HOST') || '127.0.0.1';
+var couchHost = nconf.get('COUCH_HOST') || 'couchdb';
 var couchPort = nconf.get('COUCH_PORT') || 5984;
 
 

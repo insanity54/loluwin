@@ -2,3 +2,7 @@
 - name: docker
   src: dochang.docker
   path: provisioning/roles/
+
+- name: haproxy
+  src: geerlingguy.haproxy
+  path: provisioning/roles/

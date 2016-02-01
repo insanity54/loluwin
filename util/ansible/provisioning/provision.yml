@@ -2,5 +2,7 @@
 - hosts: loluwin
   sudo: no
   roles:
+    - role: dependencies
     - role: docker
+    - role: haproxy
     - role: loluwin
