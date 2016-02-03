@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="keywords" content="">
+    <meta name="author" content="">
+    <meta name="Copyright" content="">
+    <link rel="icon" href="images/favicon.ico">
+    <title>LOLUWIN Donation</title>
+    <link href="/components/bootstrap/dist/css/bootstrap.css" rel="stylesheet">
+    <link href="/components/loluwin/css/custom.css" rel="stylesheet">
+    <link rel="stylesheet" href="/components/backgrid/lib/backgrid.css" type="text/css">
+</head>
+<body>
+    <header>
+        <div class="container header">
+            <a href="/"><img src="/components/loluwin/img/logo.png" alt="Logo"></a>
+        </div>
+    </header>
+    <div class="container content-area">
+        <div class="col-sm-12">
+          
+          {# page title #}
+          <h1>DONATION</h1>
+          <h4>Thank you donator, you are so kind, LOL.</h4>
+
+
+          {# donation form #}
+          {# here is where donator enters the name to credit #}
+          <form id="credit" method="post">
+                <h4>Enter for a chance to win!*</h4>
+                <div class="alert alert-danger error-message"></div>
+                <div class="alert alert-success success-message"></div>
+                <div class="form-group">
+                    <label for="ign">in-game-name (NA ONLY)</label>
+                    <input type="text" class="form-control" name="ign" id="ign" />
+                </div>
+                <div class="form-group">
+                    <label for="email">Email address</label>
+                    <input type="email" class="form-control" name="email" id="email" />
+                </div>
+                <button type="submit" class="btn btn-default pull-right btnx">ENTER</button>
+            </form>
+          
+          
+          
+          
+            <form>
+              
+            <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
+<input type="hidden" name="cmd" value="_s-xclick">
+<input type="hidden" name="hosted_button_id" value="B79BJ9WVWC86Q">
+<input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
+<img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">
+</form>
+
+              
+            <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
+<input type="hidden" name="cmd" value="_s-xclick">
+<input type="hidden" name="hosted_button_id" value="8VRNSR3NR2FUQ">
+<input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
+<img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">
+</form>
+
+            </form>
+            {# a display of the number of giveaway entries, #}
+            {# with bonus grammar correct! #}
+            <p id="entries">
+              {{ numberOfEntries }}
+              {% if numberOfEntries == 1 %}
+                person 
+              {% else %}
+                people 
+              {% endif %}
+              entered this drawing.
+            </p>
+          
+            {# list of entrants #}
+            <div id="entrants-grid"></div>
+          
+        </div>
+      
+        <div id="controls" class="col-sm-6 admin-operations">
+          <p>Busted all the punks? Start the drawing!</p>
+          <button id="draw-button" class="btn btn-default pull-right btnx">DRAW A WINNER</button>
+        </div>
+      
+      </div>
+    </div>
+    <footer>
+        <div class="container footer">
+          <p>May the universal entropy be in your favor!</p>
+          {% include "footer-nav.nunj" %}
+        </div>
+    </footer>
+    <script src="/components/jquery/dist/jquery.min.js"></script>
+    <script src="/components/underscore/underscore.js"></script>
+    <script src="/components/backbone/backbone.js"></script>
+    <script src="/components/backgrid/lib/backgrid.js"></script>
+  
+    <script type="text/javascript">
+//        var liftoffTime = new Date();
+//        var x = liftoffTime.setDate(liftoffTime.getDate() + 1);
+//        $('#compactLayout').countdown({until: liftoffTime, compact: true,
+//            layout: '<b>{dn} Days {hnn}{sep}{mnn}{sep}{snn}</b> {desc}',
+//            description: ''});
+
+        $('form#chance').submit(function() {
+            console.log($('form#chance').serialize());
+            var postdata = $('form#chance').serialize();
+            postdata += '&giveawayID={{ giveawayID }}';
+            console.log('post data ' + postdata);
+            $.ajax({
+                type: 'POST',
+                url: '/giveaway/entry',
+                data: postdata,
+                dataType: 'json',
+                success: function(json) {
+                  $('.error-message').hide();
+                  $('.success-message').hide();
+                  $('.newsletter form').hide();
+                  $('.success-message').html(json.message);
+                  $('.success-message').fadeIn();
+                },
+                error: function(res) {
+                  $('.success-message').hide();
+                  $('.error-message').hide();
+                  $('.error-message').html(res.responseJSON.message);
+                  $('.error-message').fadeIn();
+                }
+            });
+            return false;
+        });
+    </script>
+    <script type="text/javascript">
+      
+    // set up editable table
+    $(document).ready(function() {
+
+    var Entry = Backbone.Model.extend({
+      url: function() { return '/api/v1/giveaway/{{ giveawayID }}/entrants/'+this.id+'?token={{ token }}' },
+      initialize: function () {
+        Backbone.Model.prototype.initialize.apply(this, arguments);
+        this.on("change", function (model, options) {
+        if (options && options.save === false) return;
+          model.save();
+        });
+      }
+    });
+
+      
+//    var globalToken = '{{ token }}';
+//    var urlWithToken = function(url, token) {
+//        return function() {
+//            return url + "?token=" + token;
+//        };
+//    };
+//
+//    var MyModel = Backbone.Model.extend({
+//        url: urlWithToken('/my/url/', globalKey)
+//    });
+      
+    //?token={{ token }}
+      
+      
+    
+    var Entries = Backbone.Collection.extend({
+      model: Entry,
+      url: '/api/v1/giveaway/{{ giveawayID }}/entrants?token={{ token }}',
+    });
+
+    var entries = new Entries();
+
+    // Fetch entries from the url
+    entries.fetch();
+
+    // Column definitions
+    var columns = [{
+      name: "id", // The key of the model attribute
+      label: "ID", // The name to display in the header
+      editable: false, // By default every cell in a column is editable, but *ID* shouldn't be
+      // Defines a cell type, and ID is displayed as an integer without the ',' separating 1000s.
+      cell: Backgrid.IntegerCell.extend({
+        orderSeparator: ''
+      })
+    }, {
+      name: "ign",
+      label: "IGN",
+      // The cell type can be a reference of a Backgrid.Cell subclass, any Backgrid.Cell subclass instances like *id* above, or a string
+      cell: "string", // This is converted to "StringCell" and a corresponding class in the Backgrid package namespace is looked up
+      editable: true
+    }, {
+      name: "email",
+      label: "E-Mail",
+      editable: true,
+      cell: "string" // An integer cell is a number cell that displays humanized integers
+    }, {
+      name: "valid",
+      label: "Valid",
+      editable: true,
+      cell: "boolean" // A cell type for floating point value, defaults to have a precision 2 decimal numbers
+    }];
+
+    // Initialize a new Grid instance
+    var grid = new Backgrid.Grid({
+      columns: columns,
+      collection: entries,
+      events: {
+        "backgrid:rendered": 'tiesto'
+      },
+      tiesto: function(e) {
+        console.log('tiesto!');
+        console.log(e);
+      }
+    });
+      
+      
+    
+
+    // Render the grid and attach the Grid's root to your HTML document
+    $("#entrants-grid").append(grid.render().el);
+      
+    // create a save button
+    var Controls = Backbone.View.extend({
+      el: '#controls',
+      events: {
+        "click #draw-button" : "clickAction"
+      },
+      clickAction: function(e) {
+        console.log('click %s', e);
+        console.log(entries);
+        //entries.sync(); 
+      }
+    });
+      
+    var controls = new Controls();
+      
+//      
+//      $('#save-button').click( function() {
+//        
+//
+//        console.log('save button clicked');
+////        console.log(entries);
+////        entries.sync('update');
+//        
+//      });
+      
+      
+      
+      
+    });
+      
+      
+    
+  </script>
+</body>
+</html>
