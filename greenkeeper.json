@@ -1,0 +1,12 @@
+{
+  "groups": {
+    "default": {
+      "packages": [
+        "client/components/backbone/package.json",
+        "client/components/backgrid/package.json",
+        "client/components/bootstrap/package.json",
+        "package.json"
+      ]
+    }
+  }
+}
