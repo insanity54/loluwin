@@ -1,6 +1,6 @@
 # loluwin
 
-[![Build Status](https://travis-ci.org/insanity54/loluwin.svg?branch=master)](https://travis-ci.org/insanity54/loluwin)
+[![Build Status](https://travis-ci.org/insanity54/loluwin.svg?branch=master)](https://travis-ci.org/insanity54/loluwin) [![Greenkeeper badge](https://badges.greenkeeper.io/insanity54/loluwin.svg)](https://greenkeeper.io/)
 
 a web app for facilitating semi-automatic weekly giveaways
 
